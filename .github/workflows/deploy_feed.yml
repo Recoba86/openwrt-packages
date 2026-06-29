@@ -1,0 +1,56 @@
+name: Deploy Feed
+
+on:
+  push:
+    branches:
+      - main
+  schedule:
+    - cron: '0 */6 * * *'
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v3
+
+      - name: Fetch Latest IPK from Source Repo
+        run: |
+          release_payload=$(curl -s https://api.github.com/repos/Recoba86/openwrt-dns-adaptive-routing/releases/latest)
+          version=$(echo "$release_payload" | jq -r '.tag_name' | sed 's/^v//')
+          
+          if [ "$version" = "latest" ] || [ -z "$version" ] || [ "$version" = "null" ]; then
+            ipk_name=$(echo "$release_payload" | jq -r '.assets[] | select(.name | endswith(".ipk")) | .name')
+            version=$(echo "$ipk_name" | sed -E 's/dns-adaptive-routing_(.*)\.ipk/\1/')
+          fi
+          
+          ipk_url=$(echo "$release_payload" | jq -r '.assets[] | select(.name | endswith(".ipk")) | .browser_download_url')
+          
+          if [ -n "$ipk_url" ] && [ "$ipk_url" != "null" ]; then
+            echo "Latest version detected: $version"
+            echo "Downloading IPK from $ipk_url..."
+            mkdir -p "dns-adaptive-routing/$version"
+            wget -q -O "dns-adaptive-routing/$version/dns-adaptive-routing.ipk" "$ipk_url"
+          else
+            echo "No release IPK found."
+            exit 1
+          fi
+
+      - name: Generate Feed Index
+        run: |
+          ./index_generator.sh
+
+      - name: Commit and Push Changes
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add .
+          if ! git diff-index --quiet HEAD; then
+            git commit -m "Automated update of feed index files"
+            git push origin main
+          else
+            echo "No changes to commit."
+          fi
