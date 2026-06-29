@@ -1,0 +1,11 @@
+Package: dns-adaptive-routing
+Version: 1.0.0-1
+Depends: jq, netcat
+Section: net
+Architecture: all
+Maintainer: Recoba86
+Description: Adaptive DNS routing based on destination TCP latency
+Filename: dns-adaptive-routing/1.0.0/dns-adaptive-routing.ipk
+Size: 2904
+SHA256sum: 7def9516e839b3a6629959b4aba39b4855537f71891a0f04b4dc343acb66a9c6
+
