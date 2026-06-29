@@ -4,7 +4,7 @@ set -e
 
 echo "Generating package index..."
 
-rm -f Packages Packages.gz Packages.manifest sha256sum.txt
+rm -f Packages Packages.gz Packages.manifest sha256sum.txt Packages.sig
 touch Packages Packages.manifest sha256sum.txt
 
 # Find all IPK files recursively
@@ -31,6 +31,14 @@ for ipk in $ipk_files; do
     echo "$clean_ipk" >> Packages.manifest
     echo "$sha256  $clean_ipk" >> sha256sum.txt
 done
+
+# Sign Packages if usign is available
+if which usign >/dev/null 2>&1; then
+    echo "Signing Packages using usign..."
+    usign -S -m Packages -s keys/custom_feed.key -x Packages.sig
+else
+    echo "Warning: usign not found. Skipping signature generation."
+fi
 
 # Compress Packages
 gzip -c Packages > Packages.gz
