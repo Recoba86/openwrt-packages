@@ -10,6 +10,17 @@ Size: 2928
 SHA256sum: 947ae13f2c4d360eb47c1e1ee12d8aa5e7d699b146977554aff2c07756fd8163
 
 Package: dns-adaptive-routing
+Version: 1.0.0-git-4
+Depends: jq, netcat
+Section: net
+Architecture: all
+Maintainer: Recoba86
+Description: Adaptive DNS routing based on destination TCP latency
+Filename: dns-adaptive-routing/1.0.0-git-4/dns-adaptive-routing.ipk
+Size: 2922
+SHA256sum: b9414c8b6451595bc20eba6e7ae7a5bd872b21770f552461d6fc46e4a883acd5
+
+Package: dns-adaptive-routing
 Version: 1.0.0-1
 Depends: jq, netcat
 Section: net
